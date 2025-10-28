@@ -38,7 +38,7 @@ int main()
     }
 
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = inet_addr("127.0.0.1");
     address.sin_port = htons(PORT);
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == SOCKET_ERROR)
@@ -49,7 +49,14 @@ int main()
         return 1;
     }
 
-    listen(server_fd, 3);
+    if (listen(server_fd, 3) == SOCKET_ERROR)
+    {
+        printf("Listen failed\n");
+        closesocket(server_fd);
+        WSACleanup();
+        return 1;
+    }
+
     printf("Server listening on port %d...\n", PORT);
 
     while (1)
@@ -75,7 +82,6 @@ int main()
             }
 
             xorCipher(buffer);
-
             if (strcmp(buffer, "q") == 0 || strcmp(buffer, "Q") == 0)
             {
                 printf("Client requested termination.\n");
